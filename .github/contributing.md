@@ -58,7 +58,7 @@ npm run lint
 
 
 ## Git Hooks
-The project uses [git-conventional-commits](https://github.com/qoomon/git-conventional-commits) to enforce the following on each commit:
+The project uses [simple-git-hooks](https://github.com/toplenboren/simple-git-hooks) to enforce the following on each commit:
 
 - Type check the entire project
 - Verify commit message format (logic in `git-conventional-commits.yaml`)
