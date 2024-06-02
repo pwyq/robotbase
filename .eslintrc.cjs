@@ -17,7 +17,12 @@ module.exports = {
       ],
       'extends': [
         'plugin:cypress/recommended'
-      ]
+      ],
+      "parser": "babel-eslint",
+      "parserOptions": {
+        // Required for certain syntax usages
+        "ecmaVersion": 2020
+      },
     }
   ],
   parserOptions: {
