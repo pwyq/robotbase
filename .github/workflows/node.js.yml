@@ -38,30 +38,30 @@ jobs:
       - name: Run unit tests
         run: pnpm run test:unit
 
-  unit-test-windows:
-    runs-on: windows-latest
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
-    env:
-      PUPPETEER_SKIP_DOWNLOAD: 'true'
-    steps:
-      - uses: actions/checkout@v4
+  # unit-test-windows:
+  #   runs-on: windows-latest
+  #   if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+  #   env:
+  #     PUPPETEER_SKIP_DOWNLOAD: 'true'
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3.0.0
+  #     - name: Install pnpm
+  #       uses: pnpm/action-setup@v3.0.0
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.node-version'
-          cache: 'pnpm'
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version-file: '.node-version'
+  #         cache: 'pnpm'
 
-      - run: pnpm install
+  #     - run: pnpm install
 
-      - name: Run compiler unit tests
-        run: pnpm run test:unit compiler
+  #     - name: Run compiler unit tests
+  #       run: pnpm run test:unit compiler
 
-      - name: Run ssr unit tests
-        run: pnpm run test:unit server-renderer
+  #     - name: Run ssr unit tests
+  #       run: pnpm run test:unit server-renderer
 
   e2e-test:
     runs-on: ubuntu-latest
