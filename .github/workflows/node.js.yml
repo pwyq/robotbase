@@ -1,31 +1,122 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Node.js CI
-
+name: 'ci'
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: read # to fetch code (actions/checkout)
 
 jobs:
-  build:
-
+  unit-test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3.0.0
+
+      - name: Debug show environment
+        run: |
+            ls ${{github.workspace}}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - run: pnpm install
+
+      - name: Run unit tests
+        run: pnpm run test-unit
+
+  unit-test-windows:
+    runs-on: windows-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3.0.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - run: pnpm install
+
+      - name: Run compiler unit tests
+        run: pnpm run test-unit compiler
+
+      - name: Run ssr unit tests
+        run: pnpm run test-unit server-renderer
+
+  e2e-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup cache for Chromium binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: chromium-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3.0.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - run: pnpm install
+      - run: node node_modules/puppeteer/install.mjs
+
+      - name: Run e2e tests
+        run: pnpm run test-e2e
+
+      - name: verify treeshaking
+        run: node scripts/verify-treeshaking.js
+
+  lint-and-test-dts:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3.0.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - run: pnpm install
+
+      - name: Run eslint
+        run: pnpm run lint
+
+      - name: Run prettier
+        run: pnpm run format-check
+
+      - name: Run type declaration tests
+        run: pnpm run test-dts

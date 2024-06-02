@@ -1,6 +1,7 @@
 {
   "name": "robotbase",
   "version": "0.0.0",
+  "packageManager": "pnpm@9.1.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -60,5 +61,16 @@
     "vite": "^5.2.8",
     "vitest": "^1.4.0",
     "vue-tsc": "^2.0.11"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "typescript-eslint>eslint": "^9.0.0",
+        "@typescript-eslint/eslint-plugin>eslint": "^9.0.0",
+        "@typescript-eslint/parser>eslint": "^9.0.0",
+        "@typescript-eslint/type-utils>eslint": "^9.0.0",
+        "@typescript-eslint/utils>eslint": "^9.0.0"
+      }
+    }
   }
 }
